@@ -6,7 +6,13 @@ from rest_framework import status
 
 OEX_RATES_URL = 'https://openexchangerates.org/api/latest.json'
 OEX_APP_ID = os.getenv('OEX_APP_ID', '')
-CURRENCIES = os.getenv('CURRENCIES', '').split(',')  # TODO: prevent typos
+CURRENCIES = set(os.getenv('CURRENCIES', '').split(','))  # TODO: prevent typos
+
+# TODO: caclulate all rates with one request
+
+
+def get_currency_combos():
+    return {curr: CURRENCIES - {curr} for curr in CURRENCIES}
 
 
 def get_currency_rate(base_currency, converted_currencies):
