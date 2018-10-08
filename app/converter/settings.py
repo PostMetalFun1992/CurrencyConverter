@@ -12,7 +12,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.cOntrib.staticfiles',
+    'django.contrib.staticfiles',
     'django_extensions',
     'rest_framework',
     'converter_app',

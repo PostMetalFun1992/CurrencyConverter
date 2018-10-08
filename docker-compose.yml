@@ -23,10 +23,12 @@ services:
         volumes:
             - ./app:/app
             - ./tests:/tests
+        env_file:
+            - ./compose/ENVS.env
         ports:
             - 8000:8000/tcp
         tty: true
-        command: ["bash"]
+        command: ["./start"]
 
 volumes:
     rabbit_data:
