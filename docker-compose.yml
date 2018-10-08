@@ -1,0 +1,32 @@
+version: '3.1'
+services:
+    rabbit:
+        restart: unless-stopped
+        image: rabbitmq:3.7.7-alpine
+        volumes:
+            - rabbit_data:/var/lib/rabbitmq
+        env_file:
+            - ./compose/ENVS.env
+        ports:
+            - 5672:5672
+        tty: true
+    redis:
+        restart: unless-stopped
+        image: redis:4.0-alpine
+        ports:
+            - 6379:6379
+        tty: true
+    api:
+        build:
+            context: ./compose
+            dockerfile: ./Dockerfile
+        volumes:
+            - ./app:/app
+            - ./tests:/tests
+        ports:
+            - 8000:8000/tcp
+        tty: true
+        command: ["bash"]
+
+volumes:
+    rabbit_data:
