@@ -1,11 +1,9 @@
-from decimal import Decimal
 import os
 
 import requests as r
 from rest_framework import status
 
-from converter_app.models import CurrencyRate
-
+from converter_app.serializers import CurrencyRateSerializer
 
 RATES_API_URL = 'https://api.exchangeratesapi.io/latest'
 CURRENCIES = set(os.getenv('CURRENCIES', '').split(','))
@@ -32,10 +30,15 @@ def get_currencies_rates():
 
 
 def load_rates():
+    pair_rates = []
     for base, convertibles in get_currencies_rates().items():
         for convertible, value in convertibles.items():
-            CurrencyRate.objects.create(
-                base_currency=base,
-                convertible_currency=convertible,
-                value=value
-            )
+            pair_rates.append({
+                'base_currency': base,
+                'convertible_currency': convertible,
+                'value': value
+            })
+
+    serializer = CurrencyRateSerializer(data=pair_rates, many=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
