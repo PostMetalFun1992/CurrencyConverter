@@ -1,29 +1,41 @@
+from decimal import Decimal
 import os
 
 import requests as r
 from rest_framework import status
 
-
-OEX_RATES_URL = 'https://openexchangerates.org/api/latest.json'
-OEX_APP_ID = os.getenv('OEX_APP_ID', '')
-CURRENCIES = set(os.getenv('CURRENCIES', '').split(','))  # TODO: prevent typos
-
-# TODO: caclulate all rates with one request
+from converter_app.models import CurrencyRate
 
 
-def get_currency_combos():
-    return {curr: CURRENCIES - {curr} for curr in CURRENCIES}
+RATES_API_URL = 'https://api.exchangeratesapi.io/latest'
+CURRENCIES = set(os.getenv('CURRENCIES', '').split(','))
 
 
-def get_currency_rate(base_currency, converted_currencies):
-    resp = r.get(
-        OEX_RATES_URL,
-        params={'app_id': OEX_APP_ID, 'base': base_currency}
-    )
+def _calc_combos():
+    return {currency: CURRENCIES - {currency} for currency in CURRENCIES}
+
+
+def _get_currency_rate(base, convertibles):
+    resp = r.get(RATES_API_URL, params={'base': base})
 
     if not resp.status_code == status.HTTP_200_OK:
         return {}
 
     rates = resp.json()['rates']
 
-    return {curr: rates[curr] for curr in converted_currencies}
+    return {currency: rates[currency] for currency in convertibles}
+
+
+def get_currencies_rates():
+    return {base: _get_currency_rate(base, convertibles)
+            for base, convertibles in _calc_combos().items()}
+
+
+def load_rates():
+    for base, convertibles in get_currencies_rates().items():
+        for convertible, value in convertibles.items():
+            CurrencyRate.objects.create(
+                base_currency=base,
+                convertible_currency=convertible,
+                value=value
+            )
