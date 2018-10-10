@@ -10,6 +10,13 @@ from converter_app.models import CurrencyRate
 RATES_UPDATE_PERIOD_DAYS = int(os.getenv('RATES_UPDATE_PERIOD_DAYS', '1'))
 
 
+class CurrencyConversationSerializer(serializers.Serializer):
+    base_currency = serializers.CharField(max_length=3)
+    convertible_currency = serializers.CharField(max_length=3)
+    amount = serializers.FloatField()
+    converted_amount = serializers.FloatField(required=False)
+
+
 class CurrencyRateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
