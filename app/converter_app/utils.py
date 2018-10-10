@@ -9,8 +9,8 @@ from converter_app.models import CurrencyRate
 from converter_app.serializers import CurrencyRateSerializer
 
 
-def _calc_combos():
-    return {currency: CURRENCIES - {currency} for currency in CURRENCIES}
+def _calc_combos(currencies_set=CURRENCIES):
+    return {c: currencies_set - {c} for c in currencies_set}
 
 
 def _get_currency_rate(base, convertibles):
@@ -52,7 +52,7 @@ def convert_amount(base_currency, convertible_currency, amount):
         ).latest('created_at')
     except ObjectDoesNotExist:
         raise serializers.ValidationError(
-            'Cannot load rates: {}-{}'
+            'Cannot found rates: {}-{}'
             .format(base_currency, convertible_currency)
         )
 

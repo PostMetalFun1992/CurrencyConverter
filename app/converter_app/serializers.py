@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import timedelta as td
 
-from django.utils import timezone
+from django.utils import timezone as tz
 from rest_framework import serializers
 
 from converter.enviroments import CURRENCIES, RATES_UPDATE_PERIOD_DAYS
@@ -16,27 +16,29 @@ class CurrencyConversationSerializer(serializers.Serializer):
 class CurrencyRateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
-        now = timezone.now()
 
-        if data['base_currency'] == data['convertible_currency']:
+        base = data['base_currency']
+        convertible = data['convertible_currency']
+        border = tz.now() - td(days=RATES_UPDATE_PERIOD_DAYS)
+
+        if base == convertible:
             raise serializers.ValidationError(
                 'Base currency code cannot equal to convertible'
             )
 
-        if CurrencyRate.objects.filter(
-            base_currency=data['base_currency'],
-            convertible_currency=data['convertible_currency'],
-            created_at__gte=datetime(
-                now.year, now.month, now.day, tzinfo=now.tzinfo
-            )
-        ).exists():
+        rate_in_current_period = CurrencyRate.objects.filter(
+            base_currency=base,
+            convertible_currency=convertible,
+        ).exclude(
+            created_at__year=border.year,
+            created_at__month=border.month,
+            created_at__day=border.day,
+        ).first()
+
+        if rate_in_current_period:
             raise serializers.ValidationError(
-                'Latest currency rate {}-{} for period "{} {}" already exists'
-                .format(
-                    data['base_currency'],
-                    data['convertible_currency'],
-                    RATES_UPDATE_PERIOD_DAYS, 'Day'
-                )
+                'Latest currency rate {}-{} for period "{} Day" already exists'
+                .format(base, convertible, RATES_UPDATE_PERIOD_DAYS)
             )
 
         return data
