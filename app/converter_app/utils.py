@@ -1,8 +1,10 @@
 import os
 
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import serializers, status
 import requests as r
-from rest_framework import status
 
+from converter_app.models import CurrencyRate
 from converter_app.serializers import CurrencyRateSerializer
 
 RATES_API_URL = 'https://api.exchangeratesapi.io/latest'
@@ -42,3 +44,18 @@ def load_rates():
     serializer = CurrencyRateSerializer(data=pair_rates, many=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
+
+
+def convert_amount(base_currency, convertible_currency, amount):
+    try:
+        rate = CurrencyRate.objects.filter(
+            base_currency=base_currency,
+            convertible_currency=convertible_currency
+        ).latest('pub_date')
+    except ObjectDoesNotExist:
+        raise serializers.ValidationError(
+            'Cannot load rates: {}-{}'
+            .format(base_currency, convertible_currency)
+        )
+
+    return amount * rate.value
