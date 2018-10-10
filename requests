@@ -1,3 +1,13 @@
 # -*- restclient -*-
 
 :api_url = http://localhost:8000
+
+# Convert
+PUT :api_url/conversation/
+Content-Type: application/json
+
+{
+    "base_currency": "USD",
+    "convertible_currency": "EUR",
+    "amount": 2.0
+}
