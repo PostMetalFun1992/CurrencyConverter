@@ -14,7 +14,6 @@ class CurrencyConversationSerializer(serializers.Serializer):
     base_currency = serializers.CharField(max_length=3)
     convertible_currency = serializers.CharField(max_length=3)
     amount = serializers.FloatField()
-    converted_amount = serializers.FloatField(required=False)
 
 
 class CurrencyRateSerializer(serializers.ModelSerializer):

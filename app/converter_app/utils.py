@@ -51,7 +51,7 @@ def convert_amount(base_currency, convertible_currency, amount):
         rate = CurrencyRate.objects.filter(
             base_currency=base_currency,
             convertible_currency=convertible_currency
-        ).latest('pub_date')
+        ).latest('created_at')
     except ObjectDoesNotExist:
         raise serializers.ValidationError(
             'Cannot load rates: {}-{}'
