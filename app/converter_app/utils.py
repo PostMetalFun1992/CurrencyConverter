@@ -1,3 +1,4 @@
+from decimal import Decimal
 import os
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -58,4 +59,6 @@ def convert_amount(base_currency, convertible_currency, amount):
             .format(base_currency, convertible_currency)
         )
 
-    return amount * rate.value
+    converted_amount = Decimal(amount * rate.value).quantize(Decimal('1.00'))
+
+    return float(converted_amount)

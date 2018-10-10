@@ -24,7 +24,9 @@ class CurrencyRateSerializer(serializers.ModelSerializer):
         if CurrencyRate.objects.filter(
             base_currency=data['base_currency'],
             convertible_currency=data['convertible_currency'],
-            created_at__gte=datetime(now.year, now.month, now.day, tzinfo=now.tzinfo)
+            created_at__gte=datetime(
+                now.year, now.month, now.day, tzinfo=now.tzinfo
+            )
         ).exists():
             raise serializers.ValidationError(
                 'Latest currency rate {}-{} for period "{} {}" already exists'

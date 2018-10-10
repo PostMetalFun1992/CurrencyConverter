@@ -18,6 +18,6 @@ class CurrencyConversationView(generics.GenericAPIView):
             request.data['amount'],
         )
 
-        return Response(
-            {**serializer.data, **{'converted_amount': converted_amount}}
-        )
+        return Response({
+            **serializer.data, **{'converted_amount': converted_amount}
+        })
