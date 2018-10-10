@@ -12,11 +12,7 @@ class CurrencyConversationView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        converted_amount = convert_amount(
-            request.data['base_currency'],
-            request.data['convertible_currency'],
-            request.data['amount'],
-        )
+        converted_amount = convert_amount(**serializer.data)
 
         return Response({
             **serializer.data, **{'converted_amount': converted_amount}

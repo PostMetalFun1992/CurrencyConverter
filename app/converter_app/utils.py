@@ -1,15 +1,12 @@
 from decimal import Decimal
-import os
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers, status
 import requests as r
 
+from converter.enviroments import CURRENCIES, RATES_API_URL
 from converter_app.models import CurrencyRate
 from converter_app.serializers import CurrencyRateSerializer
-
-RATES_API_URL = 'https://api.exchangeratesapi.io/latest'
-CURRENCIES = set(os.getenv('CURRENCIES', '').split(','))
 
 
 def _calc_combos():

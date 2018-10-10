@@ -1,25 +1,27 @@
-import os
 from datetime import datetime
 
 from django.utils import timezone
 from rest_framework import serializers
 
+from converter.enviroments import CURRENCIES, RATES_UPDATE_PERIOD_DAYS
 from converter_app.models import CurrencyRate
 
 
-RATES_UPDATE_PERIOD_DAYS = int(os.getenv('RATES_UPDATE_PERIOD_DAYS', '1'))
-
-
 class CurrencyConversationSerializer(serializers.Serializer):
-    base_currency = serializers.CharField(max_length=3)
-    convertible_currency = serializers.CharField(max_length=3)
-    amount = serializers.FloatField()
+    base_currency = serializers.ChoiceField(choices=CURRENCIES)
+    convertible_currency = serializers.ChoiceField(choices=CURRENCIES)
+    amount = serializers.FloatField(min_value=0)
 
 
 class CurrencyRateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
         now = timezone.now()
+
+        if data['base_currency'] == data['convertible_currency']:
+            raise serializers.ValidationError(
+                'Base currency code cannot equal to convertible'
+            )
 
         if CurrencyRate.objects.filter(
             base_currency=data['base_currency'],
