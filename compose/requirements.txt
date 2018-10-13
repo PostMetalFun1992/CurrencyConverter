@@ -7,3 +7,4 @@ pytest-django==3.4.3
 pytest-pythonpath==0.7.3
 celery==4.2.1
 requests==2.19.1
+redis==2.10.6
