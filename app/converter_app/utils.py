@@ -1,12 +1,13 @@
 from decimal import Decimal
 
-from django.http import Http404
-from rest_framework import serializers, status
+from rest_framework import status
 import requests as r
 
 from converter.enviroments import CURRENCIES, RATES_API_URL
 from converter_app.models import CurrencyRate
 from converter_app.serializers import CurrencyRateSerializer
+
+EQUAL_CODE_RATE_VALUE = 1.0
 
 
 def _calc_combos(currencies_set=CURRENCIES):
@@ -45,7 +46,7 @@ def load_rates():
 
 
 def convert_amount(base_currency, convertible_currency, amount):
-    rate_value = 1.0
+    rate_value = EQUAL_CODE_RATE_VALUE
 
     if not base_currency == convertible_currency:
         rate = CurrencyRate.objects.filter(

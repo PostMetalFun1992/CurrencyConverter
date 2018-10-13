@@ -66,6 +66,26 @@ class TestConvertAmount:
         assert r.status_code == status.HTTP_200_OK
         assert r.data['converted_amount'] == last_value * amount
 
+    @pytest.mark.parametrize('base,convertible,info', [
+        ('USD', 'ZZZ', 'ZZZ'),
+        ('ZZZ', 'USD', 'ZZZ'),
+        ('ZZZ', 'ZZZ', 'ZZZ'),
+    ])
+    def test_400_when_not_supported_currencies(
+        self, api_client, base, convertible, info
+    ):
+        data = {
+            'base_currency': base,
+            'convertible_currency': convertible,
+            'amount': 5.0
+        }
+
+        r = api_client.put('/conversation/', data=data, format='json')
+
+        assert r.status_code == status.HTTP_400_BAD_REQUEST
+        for value in r.data.values():
+            assert '"{}" is not a valid choice.'.format(info) in str(value)
+
     def test_404_when_not_found_rates(self, api_client):
         data = {
             'base_currency': 'USD',
