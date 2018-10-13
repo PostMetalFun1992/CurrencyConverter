@@ -12,6 +12,10 @@ class TestConvertAmount:
         ('USD', 'EUR', 0.8745080892, 5.0, 4.37),
         ('USD', 'EUR', 0.8745080892, 5.5, 4.81),
         ('USD', 'EUR', 0.8745080892, 0.5, 0.44),
+        ('USD', 'USD', 0.8745080892, 0.5, 0.5),
+        ('USD', 'USD', 1.5, 5.0, 5.0),
+        ('USD', 'USD', 1.5, 5.5, 5.5),
+        ('USD', 'USD', 1.5, 0.5, 0.5),
     ])
     def test_convert_amount(
         self, api_client, base, convertible, value, amount, result
@@ -35,3 +39,15 @@ class TestConvertAmount:
         assert r.data['convertible_currency'] == convertible
         assert r.data['amount'] == amount
         assert r.data['converted_amount'] == result
+
+    def test_404_when_not_found_rates(self, api_client):
+        data = {
+            'base_currency': 'USD',
+            'convertible_currency': 'EUR',
+            'amount': 5.0
+        }
+
+        r = api_client.put('/conversation/', data=data, format='json')
+
+        assert r.status_code == status.HTTP_404_NOT_FOUND
+        assert 'Cannot found rates: {}-{}'.format('USD', 'EUR') in r.data

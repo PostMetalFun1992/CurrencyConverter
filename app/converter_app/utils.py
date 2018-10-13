@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from rest_framework import serializers, status
 import requests as r
 
@@ -45,17 +45,19 @@ def load_rates():
 
 
 def convert_amount(base_currency, convertible_currency, amount):
-    try:
+    rate_value = 1.0
+
+    if not base_currency == convertible_currency:
         rate = CurrencyRate.objects.filter(
             base_currency=base_currency,
             convertible_currency=convertible_currency
-        ).latest('created_at')
-    except ObjectDoesNotExist:
-        raise serializers.ValidationError(
-            'Cannot found rates: {}-{}'
-            .format(base_currency, convertible_currency)
-        )
+        ).order_by('created_at').first()
 
-    converted_amount = Decimal(amount * rate.value).quantize(Decimal('1.00'))
+        if not rate:
+            return None
+
+        rate_value = rate.value
+
+    converted_amount = Decimal(amount * rate_value).quantize(Decimal('1.00'))
 
     return float(converted_amount)

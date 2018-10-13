@@ -145,15 +145,11 @@ class TestConvertAmount:
 
         assert utils.convert_amount(base, convertible, amount) == result
 
-    def test_exception_when_not_found_rates(self):
+    def test_none_when_not_found_rates(self):
         CurrencyRate.objects.create(
             base_currency='USD',
             convertible_currency='EUR',
             value=0.8639308855,
         )
 
-        with pytest.raises(serializers.ValidationError) as excinfo:
-            utils.convert_amount('USD', 'CZK', 50.0)
-
-        assert 'Cannot found rates: {}-{}'.format('USD', 'CZK') in \
-            str(excinfo.value)
+        assert utils.convert_amount('USD', 'CZK', 50.0) is None

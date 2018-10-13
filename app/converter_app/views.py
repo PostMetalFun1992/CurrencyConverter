@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics, status
 from rest_framework.response import Response
 
@@ -13,7 +14,17 @@ class CurrencyConversationView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         converted_amount = convert_amount(**serializer.data)
+        if converted_amount:
+            return Response({
+                **serializer.data,
+                **{'converted_amount': converted_amount}
+            })
 
-        return Response({
-            **serializer.data, **{'converted_amount': converted_amount}
-        })
+        return Response(
+            'Cannot found rates: {}-{}'
+            .format(
+                request.data['base_currency'],
+                request.data['convertible_currency']
+            ),
+            status=status.HTTP_404_NOT_FOUND
+        )
