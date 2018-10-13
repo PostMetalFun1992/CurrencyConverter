@@ -104,28 +104,6 @@ class TestLoadRates:
             str(excinfo.value)
         assert CurrencyRate.objects.count() == rates_before
 
-    def test_prevent_load_when_exists_on_same_date(self, monkeypatch):
-        CurrencyRate.objects.create(
-            base_currency='USD',
-            convertible_currency='EUR',
-            value=0.8639308855,
-        )
-        rates_before = CurrencyRate.objects.count()
-        monkeypatch.setattr(
-            utils,
-            'get_currencies_rates',
-            lambda: {'USD': {'EUR': 0.8639308855}}
-        )
-
-        with pytest.raises(serializers.ValidationError) as excinfo:
-            utils.load_rates()
-
-        msg = 'Latest currency rate {}-{} for period "{} Day" already exists' \
-            .format('USD', 'EUR', RATES_UPDATE_PERIOD_DAYS)
-
-        assert msg in str(excinfo.value)
-        assert CurrencyRate.objects.count() == rates_before
-
 
 class TestConvertAmount:
     @pytest.mark.parametrize('base,convertible,value,amount,result', [

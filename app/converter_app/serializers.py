@@ -1,9 +1,6 @@
-from datetime import timedelta as td
-
-from django.utils import timezone as tz
 from rest_framework import serializers
 
-from converter.enviroments import CURRENCIES, RATES_UPDATE_PERIOD_DAYS
+from converter.enviroments import CURRENCIES
 from converter_app.models import CurrencyRate
 
 
@@ -17,28 +14,9 @@ class CurrencyRateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         data = super().validate(data)
 
-        base = data['base_currency']
-        convertible = data['convertible_currency']
-        border = tz.now() - td(days=RATES_UPDATE_PERIOD_DAYS)
-
-        if base == convertible:
+        if data['base_currency'] == data['convertible_currency']:
             raise serializers.ValidationError(
                 'Base currency code cannot equal to convertible'
-            )
-
-        rate_in_current_period = CurrencyRate.objects.filter(
-            base_currency=base,
-            convertible_currency=convertible,
-        ).exclude(
-            created_at__year=border.year,
-            created_at__month=border.month,
-            created_at__day=border.day,
-        ).first()
-
-        if rate_in_current_period:
-            raise serializers.ValidationError(
-                'Latest currency rate {}-{} for period "{} Day" already exists'
-                .format(base, convertible, RATES_UPDATE_PERIOD_DAYS)
             )
 
         return data
