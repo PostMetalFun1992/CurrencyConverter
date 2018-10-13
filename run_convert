@@ -1,0 +1,17 @@
+#!/bin/bash
+
+API_URL="http://localhost:8000"
+
+function convert {
+    curl \
+    -v \
+    -X PUT $API_URL/conversation/ \
+	-H "Content-Type: application/json" \
+	-d '{
+        "base_currency": "USD",
+        "convertible_currency": "EUR",
+        "amount": 2.0
+	}'
+}
+
+convert | jq
