@@ -51,7 +51,7 @@ def convert_amount(base_currency, convertible_currency, amount):
         rate = CurrencyRate.objects.filter(
             base_currency=base_currency,
             convertible_currency=convertible_currency
-        ).order_by('created_at').first()
+        ).order_by('-created_at').first()
 
         if not rate:
             return None

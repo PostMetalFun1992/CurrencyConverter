@@ -40,6 +40,32 @@ class TestConvertAmount:
         assert r.data['amount'] == amount
         assert r.data['converted_amount'] == result
 
+    def test_get_latest_rate(self, api_client):
+        first_value, last_value, amount = 0.8, 0.9, 5.0
+
+        CurrencyRate.objects.create(
+            base_currency='USD',
+            convertible_currency='EUR',
+            value=first_value
+        )
+
+        CurrencyRate.objects.create(
+            base_currency='USD',
+            convertible_currency='EUR',
+            value=last_value
+        )
+
+        data = {
+            'base_currency': 'USD',
+            'convertible_currency': 'EUR',
+            'amount': amount
+        }
+
+        r = api_client.put('/conversation/', data=data, format='json')
+
+        assert r.status_code == status.HTTP_200_OK
+        assert r.data['converted_amount'] == last_value * amount
+
     def test_404_when_not_found_rates(self, api_client):
         data = {
             'base_currency': 'USD',
