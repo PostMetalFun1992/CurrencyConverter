@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta as td
 
 from kombu import Queue
 
@@ -22,7 +22,7 @@ app.conf.task_routes = {
 app.conf.beat_schedule = {
     'load-rates': {
         'task': 'celery_app.tasks.task_load_rates',
-        'schedule': timedelta(days=RATES_UPDATE_PERIOD_DAYS),
+        'schedule': td(days=RATES_UPDATE_PERIOD_DAYS),
         'args': (),
     },
 }

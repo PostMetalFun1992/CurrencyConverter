@@ -1,2 +1,2 @@
 #!/bin/bash
-docker-compose exec api pytest -vv --capture=sys ../tests
+docker-compose exec api pytest -vv --capture=sys /tests
