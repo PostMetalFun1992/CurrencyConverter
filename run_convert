@@ -5,7 +5,7 @@ API_URL="http://localhost:8000"
 function convert {
     curl \
     -v \
-    -X PUT $API_URL/conversation/ \
+    -X PUT $API_URL/conversion/ \
 	-H "Content-Type: application/json" \
 	-d '{
         "base_currency": "USD",

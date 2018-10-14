@@ -4,7 +4,7 @@ from converter.enviroments import CURRENCIES
 from converter_app.models import CurrencyRate
 
 
-class CurrencyConversationSerializer(serializers.Serializer):
+class CurrencyConversionSerializer(serializers.Serializer):
     base_currency = serializers.ChoiceField(choices=CURRENCIES)
     convertible_currency = serializers.ChoiceField(choices=CURRENCIES)
     amount = serializers.FloatField(min_value=0)

@@ -7,7 +7,7 @@ from converter_app.models import CurrencyRate
 R = CurrencyRate.objects.create
 
 
-class TestCurrencyConversationView:
+class TestCurrencyConversionView:
     def test_put(self, api_client):
         base, convertible = 'USD', 'CZK'
         value, amount, result = 22.5666812418, 5.0, 112.83
@@ -15,7 +15,7 @@ class TestCurrencyConversationView:
         R(base_currency=base, convertible_currency=convertible, value=value)
 
         r = api_client.put(
-            '/conversation/',
+            '/conversion/',
             data={
                 'base_currency': base,
                 'convertible_currency': convertible,
@@ -39,7 +39,7 @@ class TestCurrencyConversationView:
         R(base_currency=base, convertible_currency=convertible, value=value_2)
 
         r = api_client.put(
-            '/conversation/',
+            '/conversion/',
             data={
                 'base_currency': base,
                 'convertible_currency': convertible,
@@ -60,7 +60,7 @@ class TestCurrencyConversationView:
         self, api_client, base, convertible, info
     ):
         r = api_client.put(
-            '/conversation/',
+            '/conversion/',
             data={
                 'base_currency': base,
                 'convertible_currency': convertible,
@@ -77,7 +77,7 @@ class TestCurrencyConversationView:
         base, convertible = 'USD', 'EUR'
 
         r = api_client.put(
-            '/conversation/',
+            '/conversion/',
             data={
                 'base_currency': base,
                 'convertible_currency': convertible,
@@ -96,7 +96,7 @@ class TestCurrencyConversationView:
         R(base_currency=base, convertible_currency=convertible, value=value)
 
         r = api_client.put(
-            '/conversation/',
+            '/conversion/',
             data={
                 'base_currency': base,
                 'convertible_currency': convertible,

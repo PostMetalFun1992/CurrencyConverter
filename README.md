@@ -1,4 +1,4 @@
-# Currency conversation API
+# Currency conversion API
 
 Based on: DRF, SQLite, Celery & Docker
 

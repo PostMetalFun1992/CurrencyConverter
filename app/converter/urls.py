@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.urls import path
 
-from converter_app.views import CurrencyConversationView
+from converter_app.views import CurrencyConversionView
 
 
 urlpatterns = [
-    path('conversation/', CurrencyConversationView.as_view()),
+    path('conversion/', CurrencyConversionView.as_view()),
     path('admin/', admin.site.urls),
 ]
