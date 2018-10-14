@@ -7,14 +7,15 @@ from converter.enviroments import CURRENCIES, RATES_API_URL
 from converter_app.models import CurrencyRate
 from converter_app.serializers import CurrencyRateSerializer
 
+
 EQUAL_CODE_RATE_VALUE = 1.0
 
 
-def _calc_combos(currencies_set=CURRENCIES):
-    return {c: currencies_set - {c} for c in currencies_set}
+def compose_combinations(currencies=CURRENCIES):
+    return {currency: currencies - {currency} for currency in currencies}
 
 
-def _get_currency_rate(base, convertibles):
+def get_currency_rates(base, convertibles):
     resp = r.get(RATES_API_URL, params={'base': base})
 
     if not resp.status_code == status.HTTP_200_OK:
@@ -26,26 +27,26 @@ def _get_currency_rate(base, convertibles):
 
 
 def get_currencies_rates():
-    return {base: _get_currency_rate(base, convertibles)
-            for base, convertibles in _calc_combos().items()}
+    return {base: get_currency_rates(base, convertibles)
+            for base, convertibles in compose_combinations().items()}
 
 
-def load_rates():
-    pair_rates = []
+def upload_rates():
+    rates = []
     for base, convertibles in get_currencies_rates().items():
         for convertible, value in convertibles.items():
-            pair_rates.append({
+            rates.append({
                 'base_currency': base,
                 'convertible_currency': convertible,
                 'value': value
             })
 
-    serializer = CurrencyRateSerializer(data=pair_rates, many=True)
+    serializer = CurrencyRateSerializer(data=rates, many=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
 
 
-def convert_amount(base_currency, convertible_currency, amount):
+def convert(base_currency, convertible_currency, amount):
     rate_value = EQUAL_CODE_RATE_VALUE
 
     if not base_currency == convertible_currency:

@@ -45,10 +45,10 @@ class TestGetCurrencyRates:
     ):
         rates_api_response(status, json)
 
-        assert utils._get_currency_rate(base, convertibles) == result
+        assert utils.get_currency_rates(base, convertibles) == result
 
 
-class TestLoadRates:
+class TestUploadRates:
     @pytest.mark.parametrize('rates', [
         {'USD': {}, 'EUR': {}},
         {
@@ -63,10 +63,10 @@ class TestLoadRates:
             'EUR': {'USD': 1.1575},
         }
     ])
-    def test_load_rates(self, monkeypatch, rates):
+    def test_upload_rates(self, monkeypatch, rates):
         monkeypatch.setattr(utils, 'get_currencies_rates', lambda: rates)
 
-        utils.load_rates()
+        utils.upload_rates()
 
         assert CurrencyRate.objects.count() == rates_count(rates)
 
@@ -81,13 +81,13 @@ class TestLoadRates:
             }
         },
     ])
-    def test_load_rates_with_existing(self, monkeypatch, rates):
+    def test_upload_rates_with_existing(self, monkeypatch, rates):
         monkeypatch.setattr(utils, 'get_currencies_rates', lambda: rates)
 
         R(base_currency='USD', convertible_currency='EUR', value=0.8639308855)
         rates_count_before = CurrencyRate.objects.count()
 
-        utils.load_rates()
+        utils.upload_rates()
 
         assert CurrencyRate.objects.count() == \
             rates_count_before + rates_count(rates)
@@ -100,14 +100,14 @@ class TestLoadRates:
         rates_count_before = CurrencyRate.objects.count()
 
         with pytest.raises(serializers.ValidationError) as excinfo:
-            utils.load_rates()
+            utils.upload_rates()
 
         assert 'Base currency code cannot equal to convertible' in \
             str(excinfo.value)
         assert CurrencyRate.objects.count() == rates_count_before
 
 
-class TestConvertAmount:
+class TestConvert:
     @pytest.mark.parametrize('base,convertible,value,amount,result', [
         ('USD', 'CZK', 22.5666812418, 5.0, 112.83),
         ('USD', 'CZK', 22.5666812418, 5.5, 124.12),
@@ -120,12 +120,12 @@ class TestConvertAmount:
         ('USD', 'USD', 1.5, 0.5, 0.5),
         ('USD', 'EUR', 0.8745080892, 0.0, 0.0),
     ])
-    def test_convert_amount(self, base, convertible, value, amount, result):
+    def test_convert(self, base, convertible, value, amount, result):
         R(base_currency=base, convertible_currency=convertible, value=value)
 
-        assert utils.convert_amount(base, convertible, amount) == result
+        assert utils.convert(base, convertible, amount) == result
 
-    def test_return_none_when_rates_not_found(self):
+    def test_none_when_rates_not_found(self):
         base, convertible_1, convertible_2 = 'USD', 'CZK', 'EUR'
         value_1, amount = 22.5666812418, 5.0
 
@@ -135,4 +135,4 @@ class TestConvertAmount:
             value=value_1
         )
 
-        assert utils.convert_amount(base, convertible_2, amount) is None
+        assert utils.convert(base, convertible_2, amount) is None

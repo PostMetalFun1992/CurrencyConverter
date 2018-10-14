@@ -3,7 +3,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 from converter_app.serializers import CurrencyConversationSerializer
-from converter_app.utils import convert_amount
+from converter_app.utils import convert
 
 
 class CurrencyConversationView(generics.GenericAPIView):
@@ -13,7 +13,7 @@ class CurrencyConversationView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        converted_amount = convert_amount(**serializer.data)
+        converted_amount = convert(**serializer.data)
         if converted_amount:
             return Response({
                 **serializer.data,
