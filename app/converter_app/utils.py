@@ -9,6 +9,7 @@ from converter_app.serializers import CurrencyRateSerializer
 
 
 EQUAL_CODE_RATE_VALUE = 1.0
+QUANTIZE_VALUE = '1.000000'
 
 
 def compose_combinations(currencies=CURRENCIES):
@@ -35,10 +36,12 @@ def upload_rates():
     rates = []
     for base, convertibles in get_currencies_rates().items():
         for convertible, value in convertibles.items():
+            decimal_value = Decimal(value).quantize(QUANTIZE_VALUE)
+
             rates.append({
                 'base_currency': base,
                 'convertible_currency': convertible,
-                'value': value
+                'value': decimal_value
             })
 
     serializer = CurrencyRateSerializer(data=rates, many=True)
