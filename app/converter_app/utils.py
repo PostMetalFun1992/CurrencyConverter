@@ -8,10 +8,6 @@ from converter_app.models import CurrencyRate
 from converter_app.serializers import CurrencyRateSerializer
 
 
-EQUAL_CODE_RATE_VALUE = 1.0
-QUANTIZE_VALUE = '1.000000'
-
-
 def compose_combinations(currencies=CURRENCIES):
     return {currency: currencies - {currency} for currency in currencies}
 
@@ -36,12 +32,12 @@ def upload_rates():
     rates = []
     for base, convertibles in get_currencies_rates().items():
         for convertible, value in convertibles.items():
-            decimal_value = Decimal(value).quantize(QUANTIZE_VALUE)
+            dec_value = Decimal(value).quantize(CurrencyRate.QUANTIZE_VALUE)
 
             rates.append({
                 'base_currency': base,
                 'convertible_currency': convertible,
-                'value': decimal_value
+                'value': dec_value
             })
 
     serializer = CurrencyRateSerializer(data=rates, many=True)
@@ -50,7 +46,7 @@ def upload_rates():
 
 
 def convert(base_currency, convertible_currency, amount):
-    rate_value = EQUAL_CODE_RATE_VALUE
+    rate_value = CurrencyRate.ONE_UNIT_RATE_VALUE
 
     if not base_currency == convertible_currency:
         rate = CurrencyRate.objects.filter(
@@ -63,6 +59,7 @@ def convert(base_currency, convertible_currency, amount):
 
         rate_value = rate.value
 
-    converted_amount = Decimal(amount * rate_value).quantize(Decimal('1.00'))
+    converted_amount = (Decimal(amount) * rate_value) \
+        .quantize(CurrencyRate.ONE_UNIT_RATE_VALUE)
 
     return float(converted_amount)
